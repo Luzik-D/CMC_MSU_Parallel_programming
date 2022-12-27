@@ -23,11 +23,18 @@ public:
 };
 
 
+// global vars
+int rank, num_workers, init;
+
+
 int main(int argc, char **argv) {
-    int a = 1, b = 2, c = 3, d = 4;
-
-    Node node = Node(a, b, c, d);
-    node.print();
-
+    //init group of process
+    init = MPI_Init(&argc, &argv);
+    if(init)  { //error
+        printf("Init error %d\n", init);
+        MPI_Abort(MPI_COMM_WORLD, init);
+        return init;
+    }
+    
     return 0;
 }
