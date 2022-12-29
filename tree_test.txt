@@ -1,0 +1,15 @@
+Waiting marker to proc 1 from parent proc 0
+Waiting marker to proc 4 from parent proc 1
+Waiting marker to proc 5 from parent proc 2
+Process 0 get marker from -1
+Waiting marker to proc 7 from parent proc 3
+Waiting marker to proc 6 from parent proc 2
+Waiting marker to proc 3 from parent proc 1
+Process 1 get marker from 0
+Process 3 get marker from 1
+Process 7 get marker from 3
+Waiting marker to proc 2 from parent proc 0
+Process 4 get marker from 1
+Process 2 get marker from 0
+Process 5 get marker from 2
+Process 6 get marker from 2

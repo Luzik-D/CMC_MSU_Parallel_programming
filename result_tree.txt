@@ -1,0 +1,127 @@
+Waiting marker to proc 46 from parent proc 22
+Waiting marker to proc 27 from parent proc 13
+Waiting marker to proc 12 from parent proc 5
+Waiting marker to proc 20 from parent proc 9
+Waiting marker to proc 17 from parent proc 8
+Waiting marker to proc 2 from parent proc 0
+Waiting marker to proc 5 from parent proc 2
+Waiting marker to proc 19 from parent proc 9
+Waiting marker to proc 45 from parent proc 22
+Waiting marker to proc 41 from parent proc 20
+Waiting marker to proc 48 from parent proc 23
+Waiting marker to proc 21 from parent proc 10
+Waiting marker to proc 43 from parent proc 21
+Waiting marker to proc 4 from parent proc 1
+Waiting marker to proc 29 from parent proc 14
+Waiting marker to proc 56 from parent proc 27
+Waiting marker to proc 37 from parent proc 18
+Waiting marker to proc 16 from parent proc 7
+Waiting marker to proc 49 from parent proc 24
+Waiting marker to proc 47 from parent proc 23
+Waiting marker to proc 30 from parent proc 14
+Waiting marker to proc 44 from parent proc 21
+Waiting marker to proc 60 from parent proc 29
+Waiting marker to proc 57 from parent proc 28
+Waiting marker to proc 25 from parent proc 12
+Waiting marker to proc 24 from parent proc 11
+Waiting marker to proc 32 from parent proc 15
+Waiting marker to proc 26 from parent proc 12
+Waiting marker to proc 3 from parent proc 1
+Waiting marker to proc 36 from parent proc 17
+Waiting marker to proc 52 from parent proc 25
+Waiting marker to proc 9 from parent proc 4
+Waiting marker to proc 54 from parent proc 26
+Waiting marker to proc 11 from parent proc 5
+Waiting marker to proc 28 from parent proc 13
+Waiting marker to proc 42 from parent proc 20
+Waiting marker to proc 22 from parent proc 10
+Waiting marker to proc 10 from parent proc 4
+Waiting marker to proc 6 from parent proc 2
+Waiting marker to proc 62 from parent proc 30
+Waiting marker to proc 58 from parent proc 28
+Waiting marker to proc 53 from parent proc 26
+Waiting marker to proc 1 from parent proc 0
+Waiting marker to proc 40 from parent proc 19
+Waiting marker to proc 15 from parent proc 7
+Waiting marker to proc 55 from parent proc 27
+Waiting marker to proc 51 from parent proc 25
+Waiting marker to proc 8 from parent proc 3
+Waiting marker to proc 34 from parent proc 16
+Waiting marker to proc 14 from parent proc 6
+Waiting marker to proc 23 from parent proc 11
+Waiting marker to proc 33 from parent proc 16
+Waiting marker to proc 31 from parent proc 15
+Waiting marker to proc 35 from parent proc 17
+Waiting marker to proc 63 from parent proc 31
+Waiting marker to proc 61 from parent proc 30
+Process 0 get marker from -1
+Waiting marker to proc 18 from parent proc 8
+Waiting marker to proc 50 from parent proc 24
+Waiting marker to proc 39 from parent proc 19
+Waiting marker to proc 59 from parent proc 29
+Waiting marker to proc 13 from parent proc 6
+Process 1 get marker from 0
+Waiting marker to proc 7 from parent proc 3
+Waiting marker to proc 38 from parent proc 18
+Process 3 get marker from 1
+Process 7 get marker from 3
+Process 15 get marker from 7
+Process 31 get marker from 15
+Process 63 get marker from 31
+Process 32 get marker from 15
+Process 16 get marker from 7
+Process 33 get marker from 16
+Process 34 get marker from 16
+Process 8 get marker from 3
+Process 17 get marker from 8
+Process 35 get marker from 17
+Process 36 get marker from 17
+Process 18 get marker from 8
+Process 37 get marker from 18
+Process 38 get marker from 18
+Process 4 get marker from 1
+Process 9 get marker from 4
+Process 19 get marker from 9
+Process 39 get marker from 19
+Process 40 get marker from 19
+Process 20 get marker from 9
+Process 41 get marker from 20
+Process 42 get marker from 20
+Process 10 get marker from 4
+Process 21 get marker from 10
+Process 43 get marker from 21
+Process 44 get marker from 21
+Process 22 get marker from 10
+Process 45 get marker from 22
+Process 46 get marker from 22
+Process 2 get marker from 0
+Process 5 get marker from 2
+Process 11 get marker from 5
+Process 23 get marker from 11
+Process 47 get marker from 23
+Process 48 get marker from 23
+Process 24 get marker from 11
+Process 49 get marker from 24
+Process 50 get marker from 24
+Process 12 get marker from 5
+Process 25 get marker from 12
+Process 51 get marker from 25
+Process 52 get marker from 25
+Process 26 get marker from 12
+Process 53 get marker from 26
+Process 54 get marker from 26
+Process 6 get marker from 2
+Process 13 get marker from 6
+Process 27 get marker from 13
+Process 55 get marker from 27
+Process 56 get marker from 27
+Process 28 get marker from 13
+Process 57 get marker from 28
+Process 58 get marker from 28
+Process 14 get marker from 6
+Process 29 get marker from 14
+Process 59 get marker from 29
+Process 60 get marker from 29
+Process 30 get marker from 14
+Process 61 get marker from 30
+Process 62 get marker from 30
