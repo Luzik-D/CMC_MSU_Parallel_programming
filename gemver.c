@@ -65,12 +65,12 @@ static
 void spare_proc_process(int k,
                         int m);
 
-
+/// Initialize array data
 static
 void init_array (int n,
-   int size, // size of data for proc
-   int start, // start of data for proc
-   int end, // end of data for proc
+   int size,
+   int start,
+   int end,
    float *alpha,
    float *beta,
    float A[ n][n],
@@ -81,28 +81,7 @@ void init_array (int n,
    float w[ n],
    float x[ n],
    float y[ n],
-   float z[ n])
-{
-  int i, j;
-  *alpha = 1.5;
-  *beta = 1.2;
-
-  float fn = (float)n;
-
-  for (i = 0; i < n; i++)
-    {
-      u1[i] = i;
-      u2[i] = ((i+1)/fn)/2.0;
-      v1[i] = ((i+1)/fn)/4.0;
-      v2[i] = ((i+1)/fn)/6.0;
-      y[i] = ((i+1)/fn)/8.0;
-      z[i] = ((i+1)/fn)/9.0;
-      x[i] = 0.0;
-      w[i] = 0.0;
-      for (j = 0; j < n; j++)
-        A[i][j] = (float) (i*j % n) / n;
-    }
-}
+   float z[ n]);
 
 static
 void print_array(int n,
@@ -292,97 +271,279 @@ int main(int argc, char** argv)
 }
 
 
+static
+void init_array (int n,
+   int size,
+   int start,
+   int end,
+   float *alpha,
+   float *beta,
+   float A[ n][n],
+   float u1[ n],
+   float v1[ n],
+   float u2[ n],
+   float v2[ n],
+   float w[ n],
+   float x[ n],
+   float y[ n],
+   float z[ n])
+{
+  int i, j;
+  *alpha = 1.5;
+  *beta = 1.2;
+
+  float fn = (float)n;
+
+  for (i = start; i < end; i++)
+    {
+      u1[i - start] = i;
+      u2[i - start] = ((i+1)/fn)/2.0;
+      v1[i - start] = ((i+1)/fn)/4.0;
+      v2[i - start] = ((i+1)/fn)/6.0;
+      y[i - start] = ((i+1)/fn)/8.0;
+      z[i - start] = ((i+1)/fn)/9.0;
+      x[i - start] = 0.0;
+      w[i - start] = 0.0;
+      for (j = 0; j < n; j++)
+        A[i - start][j] = (float) (i*j % n) / n;
+    }
+}
+
+/// Create and set breakpoint
+static
+void set_breakpoint(int proc_group,
+     int n,
+     int size,
+     float alpha,
+     float beta,
+     float A[ size][n],
+     float u1[ size],
+     float v1[ n],
+     float u2[ size],
+     float v2[ n],
+     float w[ size],
+     float x[ n],
+     float y[ size],
+     float z[ n])
+{
+  int proc_rank; // broken proc
+  MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
+
+  // create and open file with breakpoint data
+  char file_name[64];
+  snprintf(file_name, sizeof(file_name), "_process_%d_breakpoint.txt", proc_rank);
+  FILE *filename = fopen(file_name, "w");
+
+  // write data to file
+  fprintf(filename, "%d\n", proc_group);
+  fprintf(filename, "%d\n", n);
+  fprintf(filename, "%d\n", size);
+  fprintf(filename, "%0.2f\n", alpha);
+  fprintf(filename, "%0.2f\n", beta);
+
+  for (int i = 0; i < size; i++) {
+        for (int j = 0; j < n; j++) {
+            fprintf(filename, "%0.2f ", A[i][j]);
+        }
+        fprintf(filename, "\n");
+  }
+
+  for (int i = 0; i < size; i++) {
+      fprintf(filename, "%0.2f ", u1[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < n; i++) {
+      fprintf(filename, "%0.2f ", v1[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < size; i++) {
+      fprintf(filename, "%0.2f ", u2[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < n; i++) {
+      fprintf(filename, "%0.2f ", v2[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < size; i++) {
+      fprintf(filename, "%0.2f ", w[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < n; i++) {
+      fprintf(filename, "%0.2f ", x[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < size; i++) {
+      fprintf(filename, "%0.2f ",y[i]);
+  }
+  fprintf(filename, "\n");
+
+  for (int i = 0; i < n; i++) {
+      fprintf(filename, "%0.2f ", z[i]);
+  }
+  fprintf(filename, "\n");
+}
 
 
-  /*float alpha;
-  float beta;
-  float (*A)[n][n]; A = (float(*)[n][n])malloc ((n) * (n) * sizeof(float));
-  float (*u1)[n]; u1 = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*v1)[n]; v1 = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*u2)[n]; u2 = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*v2)[n]; v2 = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*w)[n]; w = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*x)[n]; x = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*y)[n]; y = (float(*)[n])malloc ((n) * sizeof(float));
-  float (*z)[n]; z = (float(*)[n])malloc ((n) * sizeof(float));
+/// Handler for spare proc
+/// Spare proc waiting for information from main proc
+/// If main proc send 0 --> error didn't cause
+/// If main proc send 0 not --> replace broken proc
+static
+void spare_proc_process(int k,
+                        int m)
+{
+  MPI_Status status[1]; // for MPI funcs calls
 
-  init_array (n,
-       size,
-       start,
-       end, 
-       &alpha, 
-       &beta,
-       *A,
-       *u1,
-       *v1,
-       *u2,
-       *v2,
-       *w,
-       *x,
-       *y,
-       *z);
+  int proc; // this func is only for sparse proc and its value no interesting for us
 
-  bench_timer_start();
+  // receive message from main proc
+  MPI_Recv(&proc, 1, MPI_INT, 0, 13, MPI_COMM_WORLD, status);
 
-  kernel_gemver (n, alpha, beta,
-   *A,
-   *u1,
-   *v1,
-   *u2,
-   *v2,
-   *w,
-   *x,
-   *y,
-   *z);
+  if(proc != 0) {
+    // ! Main proc send error code !
+    printf("One of procs was broken\n");
 
-  bench_timer_stop();
-  bench_timer_print();
+    // open file from last break point of broken proc
+    char file_name[64];
+    snprintf(file_name, sizeof(file_name), "process_%d_breakpoint.txt", proc);
+    FILE *filename = fopen(file_name, "r");
 
-  if (argc > 42 && ! strcmp(argv[0], "")) print_array(n, *w);
+    // create variables and fill data from break point
+    int group;
+    int n;
+    int size;
+    float alpha;
+    float beta;
 
-  free((void*)A);
-  free((void*)u1);
-  free((void*)v1);
-  free((void*)u2);
-  free((void*)v2);
-  free((void*)w);
-  free((void*)x);
-  free((void*)y);
-  free((void*)z);
- */
+    /*----------------------- FILL DATA PART START --------------------------*/
+    fscanf(filename, "%d", &group);
+    fscanf(filename, "%d", &n);
+    fscanf(filename, "%d", &size);
+    fscanf(filename, "%f", &alpha);
+    fscanf(filename, "%f", &beta);
+
+
+    float (*A)[size][n];
+    A = (float(*)[size][n])malloc ((size) * (n) * sizeof(float));
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < n; j++) {
+            fscanf(filename, "%f", &((*A)[i][j]));
+        }
+    }
+
+    float (*u1)[size];
+    u1 = (float(*)[size])malloc ((size) * sizeof(float));
+    for (int i = 0; i < size; i++) {
+        fscanf(filename, "%f", &((*u1)[i]));
+    }
+
+    float (*v1)[n];
+    v1 = (float(*)[n])malloc ((n) * sizeof(float));
+    for (int i = 0; i < n; i++) {
+        fscanf(filename, "%f", &((*v1)[i]));
+    }
+
+    float (*u2)[size];
+    u2 = (float(*)[size])malloc ((size) * sizeof(float));
+    for (int i = 0; i < size; i++) {
+        fscanf(filename, "%f", &((*u2)[i]));
+    }
+
+    float (*v2)[n];
+    v2 = (float(*)[n])malloc ((n) * sizeof(float));
+    for (int i = 0; i < n; i++) {
+        fscanf(filename, "%f", &((*v2)[i]));
+    }
+
+    float (*w)[size];
+    w = (float(*)[size])malloc ((size) * sizeof(float));
+    for (int i = 0; i < size; i++) {
+        fscanf(filename, "%f", &((*w)[i]));
+    }
+
+    float (*x)[n];
+    x = (float(*)[n])malloc ((n) * sizeof(float));
+    for (int i = 0; i < n; i++) {
+        fscanf(filename, "%f", &((*x)[i]));
+    }
+
+    float (*y)[size];
+    y = (float(*)[size])malloc ((size) * sizeof(float));
+    for (int i = 0; i < size; i++) {
+        fscanf(filename, "%f", &((*y)[i]));
+    }
+
+    float (*z)[n];
+    z = (float(*)[n])malloc ((n) * sizeof(float));
+    for (int i = 0; i < n; i++) {
+        fscanf(filename, "%f", &((*z)[i]));
+    }
+
+
+    /*----------------------- FILL DATA PART END --------------------------*/
+
+    /* Now continue calc of broken proc */
+    kernel_gemver (group, 
+               n, 
+               size, 
+               alpha, 
+               beta,
+               *A,
+               *u1,
+               *v1,
+               *u2,
+               *v2,
+               *w,
+               *x,
+               *y,
+               *z);
+
+
+    // send main proc calculated data
+    size = k + (0 < m);
+    MPI_Send(w, size, MPI_DOUBLE, 0, 13, MPI_COMM_WORLD);
+
+    // free allocated memory
+    free((void*)A);
+    free((void*)u1);
+    free((void*)v1);
+    free((void*)u2);
+    free((void*)v2);
+    free((void*)w);
+    free((void*)x);
+    free((void*)y);
+    free((void*)z);
+  }
+  else {
+    // no error
+    printf("No error while calc\n");
+  }
+}
 
 
 
 /// Main calc function
-/*static
-void kernel_gemver(int n,
+static
+void kernel_gemver(int proc_group,
+     int n,
+     int size,
      float alpha,
      float beta,
-     float A[ n][n],
-     float u1[ n],
+     float A[ size][n],
+     float u1[ size],
      float v1[ n],
-     float u2[ n],
+     float u2[ size],
      float v2[ n],
-     float w[ n],
+     float w[ size],
      float x[ n],
-     float y[ n],
+     float y[ size],
      float z[ n])
 {
-  int i, j;
-
-  for (i = 0; i < n; i++)
-    for (j = 0; j < n; j++)
-      A[i][j] = A[i][j] + u1[i] * v1[j] + u2[i] * v2[j];
-
-  for (i = 0; i < n; i++)
-    for (j = 0; j < n; j++)
-      x[i] = x[i] + beta * A[j][i] * y[j];
-
-  for (i = 0; i < n; i++)
-    x[i] = x[i] + z[i];
-
-  for (i = 0; i < n; i++)
-    for (j = 0; j < n; j++)
-      w[i] = w[i] + alpha * A[i][j] * x[j];
-
-}*/
+  int i = 0;
+}
