@@ -2,9 +2,11 @@
 #include "gemver.h"
 #include "mpi.h"
 #include <stdio.h>
+#include <signal.h>
 
 #define MIN(x, y) ((x) > (y) ? (y) : (x))
 
+int _kill = 1; // global kill flag
 
 double bench_t_start, bench_t_end;
 
@@ -210,7 +212,7 @@ int main(int argc, char** argv)
         cur = (double(*)[size])malloc ((size) * sizeof(double));
   
         // gather information from procs
-        for(int j = 0; j < using_proc; j++) {
+        for(int j = 1; j < using_proc; j++) {
           int proc_size = k + (j < m);
           printf("Waiting message from process %d\n", active_proc[j]);
         
@@ -405,7 +407,7 @@ void spare_proc_process(int k,
   int proc; // this func is only for sparse proc and its value no interesting for us
 
   // receive message from main proc
-  MPI_Recv(&proc, 1, MPI_INT, 0, 13, MPI_COMM_WORLD, status);
+  MPI_Recv(&proc, 1, MPI_INT, 0, 13, MPI_COMM_WORLD, &status[0]);
 
   if(proc != 0) {
     // ! Main proc send error code !
@@ -413,7 +415,7 @@ void spare_proc_process(int k,
 
     // open file from last break point of broken proc
     char file_name[64];
-    snprintf(file_name, sizeof(file_name), "process_%d_breakpoint.txt", proc);
+    snprintf(file_name, sizeof(file_name), "_process_%d_breakpoint.txt", proc);
     FILE *filename = fopen(file_name, "r");
 
     // create variables and fill data from break point
@@ -574,7 +576,11 @@ void kernel_gemver(int proc_group,
     // calc 1-st group
     for (int i = 0; i < size; i++) {
       // kill one proc
-      //*******
+      if(proc == 4 && _kill) {
+        _kill = 0;
+        printf("kill proc num 4\n");
+        raise(SIGKILL);
+      }
       for (int j = 0; j < n; j++)
         A[i][j] = A[i][j] + u1[i] * v1[j] + u2[i] * v2[j];
     }
@@ -637,7 +643,7 @@ void kernel_gemver(int proc_group,
         printf("Waiting message from process %d in kernel\n", active_proc[i]);
 
         // get proc info status
-        int info_status = MPI_Recv(*cur, size, MPI_INT, active_proc[i], 13, MPI_COMM_WORLD, status);
+        int info_status = MPI_Recv(*cur, n, MPI_DOUBLE, active_proc[i], 13, MPI_COMM_WORLD, &status[0]);
 
         if(info_status == 0) {
           // no error
@@ -656,7 +662,7 @@ void kernel_gemver(int proc_group,
           // reset last proc
           i--;
           continue;        
-        } 
+        }
       }
 
       // sent gathered data to all procs
@@ -670,7 +676,7 @@ void kernel_gemver(int proc_group,
       MPI_Send(x, n, MPI_DOUBLE, 0, 13, MPI_COMM_WORLD);
 
       // receive info from main proc
-      MPI_Recv(x, n, MPI_DOUBLE, 0, 13, MPI_COMM_WORLD, status);
+      MPI_Recv(x, n, MPI_DOUBLE, 0, 13, MPI_COMM_WORLD, &status[0]);
     }
   }
 

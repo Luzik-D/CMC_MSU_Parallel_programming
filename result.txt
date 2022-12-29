@@ -1,0 +1,29 @@
+kill proc num 4
+Waiting message from process 1 in kernel
+Get message from process 1 in kernel
+Waiting message from process 2 in kernel
+Get message from process 2 in kernel
+Waiting message from process 3 in kernel
+Get message from process 3 in kernel
+Waiting message from process 4 in kernel
+Process 4 has fault in kernel
+Waiting message from process 7 in kernel
+One of procs was broken
+Get message from process 7 in kernel
+Waiting message from process 5 in kernel
+Get message from process 5 in kernel
+Waiting message from process 6 in kernel
+Get message from process 6 in kernel
+Waiting message from process 1
+Get message from process 1
+Waiting message from process 2
+Get message from process 2
+Waiting message from process 3
+Get message from process 3
+Waiting message from process 7
+Get message from process 7
+Waiting message from process 5
+Get message from process 5
+Waiting message from process 6
+Get message from process 6
+Time in seconds = 0.070281
